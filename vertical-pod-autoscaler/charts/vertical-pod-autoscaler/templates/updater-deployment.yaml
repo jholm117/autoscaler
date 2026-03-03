@@ -60,6 +60,9 @@ spec:
           - --leader-elect-renew-deadline={{ .Values.updater.leaderElection.renewDeadline }}
           - --leader-elect-retry-period={{ .Values.updater.leaderElection.retryPeriod }}
           {{- end }}
+          {{- with .Values.updater.extraArgs }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
           ports:
             - name: prometheus
               containerPort: 8943
@@ -78,8 +81,20 @@ spec:
               scheme: HTTP
             periodSeconds: 10
             failureThreshold: 3
+          {{- with .Values.updater.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
             {{ toYaml . | nindent 12 | trim }}
           {{- end }}
+      {{- with .Values.updater.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.updater.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end -}}
